@@ -41,6 +41,11 @@ export const uploadImageToArca = async (
 
     const data = await response.json();
 
+    // 응답 검증
+    if (!data.success || !data.url) {
+      throw new Error(data.error || '업로드 응답이 올바르지 않습니다.');
+    }
+
     // 아카라이브 형식의 URL 반환
     return {
       status: true,

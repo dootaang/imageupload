@@ -114,28 +114,7 @@ async function uploadToArca(fileBuffer, fileName, mimeType) {
   throw new Error('모든 아카라이브 업로드 엔드포인트에서 실패했습니다.');
 }
 
-// 백업 이미지 호스팅 서비스
-function generateFallbackUrl(fileName) {
-  const fileExtension = fileName.split('.').pop() || 'jpg';
-  const randomId = generateRandomHash(32);
-  const timestamp = Date.now();
-  const expireTime = timestamp + (86400 * 1000); // 24시간 후
-  const key = generateRandomHash(22);
-  
-  const dateStr = new Date().toISOString().slice(0,10).replace(/-/g, '') + 'sac';
-  
-  return `//ac-p1.namu.la/${dateStr}/${randomId}.${fileExtension}?expires=${Math.floor(expireTime/1000)}&key=${key}`;
-}
 
-// 랜덤 해시 생성
-function generateRandomHash(length) {
-  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-';
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
-}
 
 export async function POST(request) {
   try {
@@ -190,18 +169,7 @@ export async function POST(request) {
         success: true,
         url: imageUrl
       });
-    } catch (arcaError) {
-      console.log('Arca upload failed, using fallback...');
-      
-      // 백업: 폴백 URL 생성
-      const fallbackUrl = generateFallbackUrl(file.name);
-      
-      return NextResponse.json({
-        success: true,
-        url: fallbackUrl,
-        fallback: true
-      });
-    }
+        } catch (arcaError) {      console.error('Arca upload failed:', arcaError);            return NextResponse.json({        success: false,        error: '아카라이브 업로드에 실패했습니다: ' + arcaError.message      }, { status: 500 });    }
 
   } catch (error) {
     console.error('Upload error:', error);
