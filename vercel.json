@@ -1,4 +1,11 @@
 {
-  "version": 2,
-  "name": "image-upload-app"
+  "buildCommand": "cd image-upload-app && npm run build",
+  "outputDirectory": "image-upload-app/.next",
+  "installCommand": "cd image-upload-app && npm install",
+  "framework": "nextjs",
+  "functions": {
+    "app/api/proxy/upload/route.js": {
+      "maxDuration": 30
+    }
+  }
 } 

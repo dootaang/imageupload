@@ -2,7 +2,7 @@ import { UploadResponse } from '../types';
 
 /**
  * 아카라이브에 이미지를 업로드하는 함수
- * Vercel API 라우트를 통해 업로드합니다.
+ * 프록시 서버를 통해 클라우드플레어 보안을 우회합니다.
  */
 export const uploadImageToArca = async (
   file: File
@@ -29,24 +29,23 @@ export const uploadImageToArca = async (
     const formData = new FormData();
     formData.append('upload', file);
 
-    // API 라우트로 업로드
-    const response = await fetch('/api/upload', {
+    // API 라우트로 업로드 요청
+    const response = await fetch('/api/proxy/upload', {
       method: 'POST',
       body: formData,
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || '업로드에 실패했습니다.');
+      throw new Error(`업로드 실패: ${response.status} ${response.statusText}`);
     }
 
-    const result = await response.json();
-    
-    return {
-      status: result.success,
-      url: result.url,
-    };
+    const data = await response.json();
 
+    // 아카라이브 형식의 URL 반환
+    return {
+      status: true,
+      url: data.url,
+    };
   } catch (error) {
     console.error('Upload error:', error);
 
@@ -84,9 +83,10 @@ export const validateImageFile = (file: File): { isValid: boolean; error?: strin
 
 /**
  * 아카라이브 스타일 HTML 마크업을 생성하는 함수
+ * 실제 아카라이브에서 사용하는 형식과 동일하게 생성
  */
 export const generateArcaImageHTML = (imageUrl: string): string => {
-  // 아카라이브 스타일의 이미지 HTML 생성
+  // 아카라이브 스타일의 이미지 HTML 생성 (fr-fic fr-dii 클래스 포함)
   return `<p><img src="${imageUrl}" class="fr-fic fr-dii"></p>`;
 };
 
