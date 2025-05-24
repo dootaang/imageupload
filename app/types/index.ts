@@ -1,8 +1,4 @@
-export interface UploadResponse {
-  status: boolean;
-  url?: string;
-  error?: string;
-}
+export interface UploadResponse {  status: boolean;  url?: string;  error?: string;  source?: string;  message?: string;}
 
 export enum IMAGE_UPLOAD_HOST {
   ARCA = "arca",

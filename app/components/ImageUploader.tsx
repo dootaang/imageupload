@@ -4,7 +4,7 @@ import React, { useState, useCallback } from 'react';
 import { Upload, Button, App, Card, Typography, Space, Divider } from 'antd';
 import { UploadOutlined, CopyOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
-import { uploadImageToArca, generateArcaImageHTML, validateImageFile } from '../utils/imageUpload';
+import { generateArcaImageHTML } from '../utils/imageUpload';
 import { ImageUrlResult } from '../types';
 
 const { Title, Text, Paragraph } = Typography;
@@ -28,26 +28,56 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 
     try {
       // 파일 유효성 검사
-      const validation = validateImageFile(file);
-      if (!validation.isValid) {
-        throw new Error(validation.error);
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
+      if (!file) {
+        throw new Error('파일이 선택되지 않았습니다.');
       }
 
-      // 아카라이브에 업로드
-      const result = await uploadImageToArca(file);
+      if (file.size > maxSize) {
+        throw new Error('파일 크기가 10MB를 초과합니다.');
+      }
 
-      if (result.status && result.url) {
-        const imageResult: ImageUrlResult = {
-          originalUrl: URL.createObjectURL(file),
-          arcaUrl: result.url,
-          timestamp: Date.now(),
-        };
+      if (!allowedTypes.includes(file.type)) {
+        throw new Error('지원되지 않는 파일 형식입니다. (JPEG, PNG, GIF, WebP만 지원)');
+      }
 
-        setUploadedImages(prev => [imageResult, ...prev]);
-        onUploadSuccess?.(imageResult);
-        message.success('이미지가 성공적으로 업로드되었습니다!');
+      // FormData 생성
+      const formData = new FormData();
+      formData.append('upload', file);
+
+      // 프록시 API로 업로드 요청
+      const response = await fetch('/api/proxy/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`업로드 실패: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      // 응답 검증
+      if (!data.success || !data.url) {
+        throw new Error(data.error || '업로드 응답이 올바르지 않습니다.');
+      }
+
+      const imageResult: ImageUrlResult = {
+        originalUrl: URL.createObjectURL(file),
+        arcaUrl: data.url,
+        timestamp: Date.now(),
+      };
+
+      setUploadedImages(prev => [imageResult, ...prev]);
+      onUploadSuccess?.(imageResult);
+      
+      // 업로드 소스에 따라 다른 메시지 표시
+      if (data.source === 'arca.live') {
+        message.success('아카라이브에 성공적으로 업로드되었습니다!');
       } else {
-        throw new Error(result.error || '업로드에 실패했습니다.');
+        message.warning(`아카라이브 업로드 실패로 ${data.source}에 업로드되었습니다.`);
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : '업로드 중 오류가 발생했습니다.';
