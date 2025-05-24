@@ -114,8 +114,6 @@ async function uploadToArca(fileBuffer, fileName, mimeType) {
   throw new Error('모든 아카라이브 업로드 엔드포인트에서 실패했습니다.');
 }
 
-
-
 export async function POST(request) {
   try {
     const formData = await request.formData();
@@ -169,7 +167,14 @@ export async function POST(request) {
         success: true,
         url: imageUrl
       });
-        } catch (arcaError) {      console.error('Arca upload failed:', arcaError);            return NextResponse.json({        success: false,        error: '아카라이브 업로드에 실패했습니다: ' + arcaError.message      }, { status: 500 });    }
+    } catch (arcaError) {
+      console.error('Arca upload failed:', arcaError);
+      
+      return NextResponse.json({
+        success: false,
+        error: '아카라이브 업로드에 실패했습니다: ' + arcaError.message
+      }, { status: 500 });
+    }
 
   } catch (error) {
     console.error('Upload error:', error);
@@ -182,7 +187,7 @@ export async function POST(request) {
 }
 
 // CORS 헤더 추가
-export async function OPTIONS(request) {
+export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
     headers: {
@@ -191,4 +196,4 @@ export async function OPTIONS(request) {
       'Access-Control-Allow-Headers': 'Content-Type',
     },
   });
-} 
+}

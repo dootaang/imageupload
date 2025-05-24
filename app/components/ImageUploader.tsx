@@ -57,7 +57,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     } finally {
       setUploading(false);
     }
-  }, [onUploadSuccess, onUploadError]);
+  }, [onUploadSuccess, onUploadError, message]);
 
   // Antd Upload props
   const uploadProps: UploadProps = {
@@ -96,7 +96,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     }).catch(() => {
       message.error('복사에 실패했습니다.');
     });
-  }, []);
+  }, [message]);
 
   // URL 복사
   const copyURL = useCallback((url: string) => {
@@ -105,13 +105,13 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     }).catch(() => {
       message.error('복사에 실패했습니다.');
     });
-  }, []);
+  }, [message]);
 
   // 이미지 삭제
   const removeImage = useCallback((timestamp: number) => {
     setUploadedImages(prev => prev.filter(img => img.timestamp !== timestamp));
     message.info('이미지가 목록에서 제거되었습니다.');
-  }, []);
+  }, [message]);
 
   return (
     <div className="image-uploader" onPaste={handlePaste}>
