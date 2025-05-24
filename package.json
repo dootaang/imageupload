@@ -11,9 +11,8 @@
   "dependencies": {
     "@ant-design/icons": "^6.0.0",
     "antd": "^5.25.2",
-    "next": "15.1.8",
+    "next": "^15.3.2",
     "react": "^19.0.0",
-    "react-color": "^2.19.3",
     "react-dom": "^19.0.0"
   },
   "devDependencies": {

@@ -1,7 +1,7 @@
 {
-  "buildCommand": "cd image-upload-app && npm run build",
-  "outputDirectory": "image-upload-app/.next",
-  "installCommand": "cd image-upload-app && npm install",
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "installCommand": "npm install",
   "framework": "nextjs",
   "functions": {
     "app/api/proxy/upload/route.js": {
